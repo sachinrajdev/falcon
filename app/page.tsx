@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-white text-slate-900">
@@ -21,9 +23,12 @@ export default function Home() {
             <a href="#">Blog</a>
           </nav>
 
-          <button className="rounded-xl bg-slate-900 px-5 py-2 text-white transition hover:bg-slate-800">
+          <Link
+            href="/upload"
+            className="rounded-xl bg-slate-900 px-5 py-2 text-white transition hover:bg-slate-800"
+          >
             Start Free
-          </button>
+          </Link>
         </div>
       </header>
 
@@ -46,9 +51,12 @@ export default function Home() {
         </p>
 
         <div className="mt-12 flex gap-4">
-          <button className="rounded-xl bg-blue-600 px-8 py-4 font-semibold text-white hover:bg-blue-700">
+          <Link
+            href="/upload"
+            className="rounded-xl bg-blue-600 px-8 py-4 font-semibold text-white hover:bg-blue-700"
+          >
             Start Free
-          </button>
+          </Link>
 
           <button className="rounded-xl border border-slate-300 px-8 py-4 font-semibold hover:bg-slate-100">
             Watch Demo
