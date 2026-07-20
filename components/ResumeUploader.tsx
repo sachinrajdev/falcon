@@ -243,6 +243,24 @@ export default function ResumeUploader() {
     },
   });
 
+  const hasJobDescription = jobDescription.trim().length > 0;
+  const stepOneStatus: "done" | "active" | "upcoming" = analysis ? "done" : "active";
+  const stepTwoStatus: "done" | "active" | "upcoming" = analysis ? "done" : "upcoming";
+  const stepThreeStatus: "done" | "active" | "upcoming" = interviewPrep
+    ? "done"
+    : analysis
+      ? hasJobDescription
+        ? "done"
+        : "active"
+      : "upcoming";
+  const stepFourStatus: "done" | "active" | "upcoming" = interviewPrep
+    ? "done"
+    : prepLoading
+      ? "active"
+      : hasJobDescription
+        ? "active"
+        : "upcoming";
+
   return (
     <div className="mt-10 space-y-8">
       <div className="grid gap-4 md:grid-cols-4">
@@ -250,25 +268,25 @@ export default function ResumeUploader() {
           number={1}
           title="Upload resume"
           description="Start with your current resume so Falcon can extract your candidate profile."
-          status={analysis ? "done" : loading ? "active" : "active"}
+          status={stepOneStatus}
         />
         <StepCard
           number={2}
           title="Confirm profile"
           description="Review the extracted role, experience, skills, projects, and certifications."
-          status={analysis ? "active" : "upcoming"}
+          status={stepTwoStatus}
         />
         <StepCard
           number={3}
           title="Paste job description"
           description="Add one target role so Falcon can extract the job profile and compare fit."
-          status={analysis ? "upcoming" : "upcoming"}
+          status={stepThreeStatus}
         />
         <StepCard
           number={4}
           title="Get decision"
           description="Receive Apply Now, Improve First, or Skip with clear reasoning and next steps."
-          status="upcoming"
+          status={stepFourStatus}
         />
       </div>
 
