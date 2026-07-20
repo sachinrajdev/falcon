@@ -189,56 +189,40 @@ export default function ResumeUploader() {
   </div>
 </div>  
 
+          <div className="rounded-2xl border bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-xl font-bold">📝 AI Summary</h3>
+            <p className="leading-7 text-slate-700">{analysis.summary}</p>
+          </div>
+
           <div className="grid gap-4 md:grid-cols-5">
-            <div className="rounded-2xl border bg-white p-6 shadow-sm">
-  <h3 className="mb-4 text-xl font-bold">
-    📝 AI Summary
-  </h3>
-
-  <p className="leading-7 text-slate-700">
-    {analysis.summary}
-  </p>
-</div>
-
-<div className="grid gap-4 md:grid-cols-2">
-
-  <div className="rounded-2xl border bg-green-50 p-6 shadow-sm">
-    <h3 className="text-xl font-bold">
-      💰 Estimated Salary
-    </h3>
-
-    <p className="mt-4 text-3xl font-bold text-green-700">
-      {analysis.salaryRange}
-    </p>
-  </div>
-
-  <div className="rounded-2xl border bg-white p-6 shadow-sm">
-    <h3 className="mb-4 text-xl font-bold">
-      🏢 Best Matching Companies
-    </h3>
-
-    <div className="flex flex-wrap gap-2">
-
-      {(analysis.topCompanies ?? []).map((company) => (
-
-        <span
-          key={company}
-          className="rounded-full bg-blue-600 px-4 py-2 text-white"
-        >
-          {company}
-        </span>
-
-      ))}
-
-    </div>
-  </div>
-
-</div>
             <ScoreCard title="Overall" value={analysis.careerScore.overall} />
             <ScoreCard title="ATS" value={analysis.careerScore.ats} />
             <ScoreCard title="Technical" value={analysis.careerScore.technical} />
             <ScoreCard title="Presentation" value={analysis.careerScore.presentation} />
             <ScoreCard title="Market" value={analysis.careerScore.marketDemand} />
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="rounded-2xl border bg-green-50 p-6 shadow-sm">
+              <h3 className="text-xl font-bold">💰 Estimated Salary</h3>
+              <p className="mt-4 text-3xl font-bold text-green-700">
+                {analysis.salaryRange}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border bg-white p-6 shadow-sm">
+              <h3 className="mb-4 text-xl font-bold">🏢 Best Matching Companies</h3>
+              <div className="flex flex-wrap gap-2">
+                {(analysis.topCompanies ?? []).map((company) => (
+                  <span
+                    key={company}
+                    className="rounded-full bg-blue-600 px-4 py-2 text-white"
+                  >
+                    {company}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
 
           <ChipSection title="Skills" items={analysis.skills ?? []} color="bg-green-600" />
