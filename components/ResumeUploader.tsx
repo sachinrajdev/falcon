@@ -18,6 +18,31 @@ type CandidateProfile = {
   preparationAreas: string[];
 };
 
+type InterviewPrepResult = {
+  jobProfile: {
+    company: string;
+    roleTitle: string;
+    seniority: string;
+    employmentType: string;
+    location: string;
+    companyContextNote: string;
+    mustHaveSkills: string[];
+    preferredSkills: string[];
+    responsibilities: string[];
+  };
+  likelyInterviewFocus: string[];
+  interviewQuestions: Array<{
+    question: string;
+    category: "technical" | "scenario" | "experience" | "behavioral" | "company-fit" | "gap-probing";
+    whyThisIsAsked: string;
+    whatTheyEvaluate: string[];
+    difficulty: "easy" | "medium" | "hard";
+    candidateRisk: "low" | "medium" | "high";
+    answerGuidance: string[];
+    followUps: string[];
+  }>;
+};
+
 function StepCard({
   number,
   title,
@@ -133,6 +158,41 @@ export default function ResumeUploader() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [jobDescription, setJobDescription] = useState("");
+  const [interviewPrep, setInterviewPrep] = useState<InterviewPrepResult | null>(null);
+  const [prepLoading, setPrepLoading] = useState(false);
+
+  const generateInterviewPrep = useCallback(async () => {
+    if (!analysis || !jobDescription.trim()) return;
+
+    setPrepLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/interview-prep", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          candidateProfile: analysis,
+          jobDescription,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Interview prep failed");
+      }
+
+      setInterviewPrep(data.interviewPrep);
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : "Interview prep failed.");
+    } finally {
+      setPrepLoading(false);
+    }
+  }, [analysis, jobDescription]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (!acceptedFiles.length) return;
@@ -146,6 +206,8 @@ export default function ResumeUploader() {
 
     setFile(uploadedFile);
     setAnalysis(null);
+    setInterviewPrep(null);
+    setJobDescription("");
     setError(null);
     setLoading(true);
 
@@ -345,10 +407,11 @@ export default function ResumeUploader() {
 
                 <button
                   type="button"
+                  onClick={generateInterviewPrep}
                   disabled={!jobDescription.trim()}
                   className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition enabled:hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
                 >
-                  Continue to job analysis
+                  Generate interview prep
                 </button>
               </div>
             </div>
@@ -356,38 +419,114 @@ export default function ResumeUploader() {
 
           <SectionShell
             eyebrow="Step 4"
-            title="What the decision screen will return"
-            description="Once the Job Intelligence and Decision Engine pieces are wired, Falcon should stop showing generic scores and instead answer exactly what the user should do next for that specific role."
+            title="Interview prep for this exact job"
+            description="Falcon should generate realistic interview questions from the JD, your experience level, and the likely company context instead of giving generic mock interviews."
           >
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5">
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-emerald-700">Verdict</p>
-                <h3 className="mt-3 text-2xl font-bold text-slate-950">Apply Now</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-700">
-                  Strong match against must-have requirements with only minor gaps.
+            {prepLoading ? (
+              <div className="rounded-3xl border border-blue-200 bg-blue-50 p-6">
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-700">Falcon is preparing</p>
+                <p className="mt-2 text-lg font-semibold text-slate-950">
+                  Generating professional interview questions from the job description and your profile.
                 </p>
               </div>
-              <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5">
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-amber-700">Verdict</p>
-                <h3 className="mt-3 text-2xl font-bold text-slate-950">Improve First</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-700">
-                  Close enough to target, but missing skills need a short improvement plan first.
-                </p>
-              </div>
-              <div className="rounded-3xl border border-rose-200 bg-rose-50 p-5">
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-rose-700">Verdict</p>
-                <h3 className="mt-3 text-2xl font-bold text-slate-950">Skip</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-700">
-                  Core requirements or seniority are too far off to justify the application right now.
-                </p>
-              </div>
-            </div>
+            ) : interviewPrep ? (
+              <div className="space-y-6">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Target role</p>
+                    <h3 className="mt-2 text-2xl font-bold text-slate-950">{interviewPrep.jobProfile.roleTitle}</h3>
+                    <p className="mt-3 text-sm leading-6 text-slate-700">
+                      {interviewPrep.jobProfile.company} · {interviewPrep.jobProfile.seniority} · {interviewPrep.jobProfile.employmentType}
+                    </p>
+                    <p className="mt-1 text-sm leading-6 text-slate-700">{interviewPrep.jobProfile.location}</p>
+                    <p className="mt-4 text-sm leading-6 text-slate-600">
+                      {interviewPrep.jobProfile.companyContextNote}
+                    </p>
+                  </div>
 
-            <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-5">
-              <p className="text-sm leading-7 text-slate-700">
-                Each verdict should include why, interview probability, resume strength, skill gap, critical missing skills, top strengths, estimated time to improve, and a personalized checklist.
-              </p>
-            </div>
+                  <div className="rounded-3xl border border-slate-200 bg-white p-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Likely interview focus</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {interviewPrep.likelyInterviewFocus.map((focus) => (
+                        <span key={focus} className="rounded-full bg-slate-900 px-3 py-2 text-sm text-white">
+                          {focus}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="mt-5 grid gap-4 md:grid-cols-2">
+                      <ChipSection title="Must-have skills" items={interviewPrep.jobProfile.mustHaveSkills} color="bg-emerald-600" />
+                      <ChipSection title="Preferred skills" items={interviewPrep.jobProfile.preferredSkills} color="bg-blue-700" />
+                    </div>
+                  </div>
+                </div>
+
+                <ListSection title="Responsibilities Falcon detected" items={interviewPrep.jobProfile.responsibilities} />
+
+                <div className="space-y-4">
+                  {interviewPrep.interviewQuestions.map((item, index) => (
+                    <div key={`${index + 1}-${item.question}`} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
+                            Question {index + 1} · {item.category}
+                          </p>
+                          <h3 className="mt-2 text-xl font-bold text-slate-950">{item.question}</h3>
+                        </div>
+
+                        <div className="flex gap-2 text-xs font-semibold uppercase tracking-[0.16em]">
+                          <span className="rounded-full bg-slate-100 px-3 py-2 text-slate-700">{item.difficulty}</span>
+                          <span className={`rounded-full px-3 py-2 ${item.candidateRisk === "high" ? "bg-rose-100 text-rose-700" : item.candidateRisk === "medium" ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}`}>
+                            Risk {item.candidateRisk}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="mt-5 grid gap-4 md:grid-cols-2">
+                        <div className="rounded-2xl bg-slate-50 p-4">
+                          <p className="text-sm font-semibold text-slate-900">Why this is asked</p>
+                          <p className="mt-2 text-sm leading-6 text-slate-700">{item.whyThisIsAsked}</p>
+                        </div>
+
+                        <div className="rounded-2xl bg-slate-50 p-4">
+                          <p className="text-sm font-semibold text-slate-900">What they evaluate</p>
+                          <ul className="mt-2 space-y-2 text-sm text-slate-700">
+                            {item.whatTheyEvaluate.map((value) => (
+                              <li key={value}>• {value}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 grid gap-4 md:grid-cols-2">
+                        <div className="rounded-2xl bg-blue-50 p-4">
+                          <p className="text-sm font-semibold text-slate-900">What a strong answer should include</p>
+                          <ul className="mt-2 space-y-2 text-sm text-slate-700">
+                            {item.answerGuidance.map((value) => (
+                              <li key={value}>• {value}</li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div className="rounded-2xl bg-amber-50 p-4">
+                          <p className="text-sm font-semibold text-slate-900">Possible follow-up questions</p>
+                          <ul className="mt-2 space-y-2 text-sm text-slate-700">
+                            {item.followUps.map((value) => (
+                              <li key={value}>• {value}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                <p className="text-sm leading-7 text-slate-700">
+                  Once the candidate profile and job description are both available, Falcon can generate 10 to 15 realistic interview questions with answer guidance, risk areas, and company-context focus.
+                </p>
+              </div>
+            )}
           </SectionShell>
         </>
       )}
