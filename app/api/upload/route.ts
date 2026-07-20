@@ -7,51 +7,38 @@ const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB — resumes are never legiti
 const RATE_LIMIT_MAX_REQUESTS = 5;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 5 uploads / hour / IP
 
-const FALCON_ANALYSIS_SCHEMA = {
+const FALCON_PROFILE_SCHEMA = {
   type: "object",
   properties: {
-    careerScore: {
-      type: "object",
-      properties: {
-        overall: { type: "number" },
-        ats: { type: "number" },
-        technical: { type: "number" },
-        presentation: { type: "number" },
-        marketDemand: { type: "number" },
-      },
-      required: ["overall", "ats", "technical", "presentation", "marketDemand"],
-      additionalProperties: false,
-    },
-    role: { type: "string" },
-    experience: { type: "string" },
+    currentRole: { type: "string" },
+    experienceYears: { type: "string" },
     summary: { type: "string" },
     careerLevel: {
       type: "string",
       enum: ["Junior", "Mid-Level", "Senior", "Lead", "Principal"],
     },
     industry: { type: "string" },
-    salaryRange: { type: "string" },
-    topCompanies: { type: "array", items: { type: "string" }, maxItems: 5 },
     skills: { type: "array", items: { type: "string" } },
-    missingSkills: { type: "array", items: { type: "string" } },
-    strengths: { type: "array", items: { type: "string" }, maxItems: 5 },
-    weaknesses: { type: "array", items: { type: "string" }, maxItems: 5 },
-    suggestions: { type: "array", items: { type: "string" }, maxItems: 5 },
+    targetRoles: { type: "array", items: { type: "string" }, maxItems: 5 },
+    preferredLocations: { type: "array", items: { type: "string" }, maxItems: 5 },
+    projects: { type: "array", items: { type: "string" }, maxItems: 6 },
+    certifications: { type: "array", items: { type: "string" }, maxItems: 6 },
+    topStrengths: { type: "array", items: { type: "string" }, maxItems: 5 },
+    preparationAreas: { type: "array", items: { type: "string" }, maxItems: 5 },
   },
   required: [
-    "careerScore",
-    "role",
-    "experience",
+    "currentRole",
+    "experienceYears",
     "summary",
     "careerLevel",
     "industry",
-    "salaryRange",
-    "topCompanies",
     "skills",
-    "missingSkills",
-    "strengths",
-    "weaknesses",
-    "suggestions",
+    "targetRoles",
+    "preferredLocations",
+    "projects",
+    "certifications",
+    "topStrengths",
+    "preparationAreas",
   ],
   additionalProperties: false,
 } as const;
@@ -144,14 +131,27 @@ export async function POST(req: NextRequest) {
     const response = await getOpenAI().responses.create({
       model: "gpt-5-mini",
       input: `
-You are Falcon AI Career Coach.
+You are Falcon, an AI Career Operating System.
 
-Your job is to analyze resumes.
+Your job in this step is not to grade the resume. Your job is to extract a structured Candidate Profile from the resume so Falcon can later compare it against a job description.
 
 IMPORTANT RULES
 
+Return only information that can be reasonably inferred from the resume.
+Do not invent certifications, target roles, or locations that have no evidence.
+Keep every field concise and practical.
+
 summary:
 Write a professional summary in maximum 2 sentences.
+
+currentRole:
+Return one likely current or most recent role title.
+
+experienceYears:
+Return only the number of years as a short string, for example:
+2 years
+5 years
+11 years
 
 careerLevel:
 Must be one of:
@@ -164,25 +164,26 @@ Principal
 industry:
 One industry only.
 
-salaryRange:
-Estimate annual salary based on skills and experience.
-Examples:
-₹18L–₹25L
-₹35L–₹45L
-$140k–$180k
+skills:
+Technology names or professional skills only.
 
-topCompanies:
-Maximum 5 company names.
-Only companies that realistically match this profile.
+targetRoles:
+Likely job titles this candidate should target next.
 
-Keep every field concise.
-Skills should be technology names only.
-Missing skills should be technology names only.
-Strengths max 5.
-Weaknesses max 5.
-Suggestions max 5.
-Experience should only contain years.
-Role should only contain ONE job title.
+preferredLocations:
+Only include locations or remote preferences explicitly stated or strongly implied.
+
+projects:
+Short project names or project descriptions from the resume.
+
+certifications:
+Only real certifications mentioned in the resume.
+
+topStrengths:
+Maximum 5 concise strengths visible from the resume.
+
+preparationAreas:
+Maximum 5 areas the candidate may need to strengthen before applying broadly. These are not final job-specific gaps.
 
 Resume:
 
@@ -192,7 +193,7 @@ ${resumeText}
         format: {
           type: "json_schema",
           name: "falcon_analysis",
-          schema: FALCON_ANALYSIS_SCHEMA,
+          schema: FALCON_PROFILE_SCHEMA,
           strict: true,
         },
       },
