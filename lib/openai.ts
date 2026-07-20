@@ -1,5 +1,15 @@
 import OpenAI from "openai";
 
-export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+let _openai: OpenAI | null = null;
+
+// Lazy singleton — see lib/llama.ts for why this isn't constructed at module load.
+export function getOpenAI(): OpenAI {
+  if (!_openai) {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error("OPENAI_API_KEY environment variable is not set.");
+    }
+    _openai = new OpenAI({ apiKey });
+  }
+  return _openai;
+}

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { llama } from "@/lib/llama";
+import { getLlama } from "@/lib/llama";
 
 export async function GET(req: NextRequest) {
   try {
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const result = await llama.parsing.get(jobId, {
+    const result = await getLlama().parsing.get(jobId, {
       expand: ["markdown"],
     });
 

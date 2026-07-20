@@ -219,7 +219,7 @@ export default function ResumeUploader() {
 
     <div className="flex flex-wrap gap-2">
 
-      {analysis.topCompanies.map((company) => (
+      {(analysis.topCompanies ?? []).map((company) => (
 
         <span
           key={company}
@@ -241,11 +241,11 @@ export default function ResumeUploader() {
             <ScoreCard title="Market" value={analysis.careerScore.marketDemand} />
           </div>
 
-          <ChipSection title="Skills" items={analysis.skills} color="bg-green-600" />
-          <ChipSection title="Missing Skills" items={analysis.missingSkills} color="bg-red-500" />
-          <ListSection title="Strengths" items={analysis.strengths} />
-          <ListSection title="Weaknesses" items={analysis.weaknesses} />
-          <ListSection title="AI Suggestions" items={analysis.suggestions} />
+          <ChipSection title="Skills" items={analysis.skills ?? []} color="bg-green-600" />
+          <ChipSection title="Missing Skills" items={analysis.missingSkills ?? []} color="bg-red-500" />
+          <ListSection title="Strengths" items={analysis.strengths ?? []} />
+          <ListSection title="Weaknesses" items={analysis.weaknesses ?? []} />
+          <ListSection title="AI Suggestions" items={analysis.suggestions ?? []} />
         </>
       )}
     </div>
