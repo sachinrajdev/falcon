@@ -58,6 +58,9 @@ const INTERVIEW_PREP_SCHEMA = {
             enum: ["low", "medium", "high"],
           },
           answerGuidance: { type: "array", items: { type: "string" }, maxItems: 5 },
+          answerFramework: { type: "array", items: { type: "string" }, maxItems: 5 },
+          resumeEvidenceToUse: { type: "array", items: { type: "string" }, maxItems: 4 },
+          mistakesToAvoid: { type: "array", items: { type: "string" }, maxItems: 4 },
           followUps: { type: "array", items: { type: "string" }, maxItems: 3 },
         },
         required: [
@@ -68,6 +71,9 @@ const INTERVIEW_PREP_SCHEMA = {
           "difficulty",
           "candidateRisk",
           "answerGuidance",
+          "answerFramework",
+          "resumeEvidenceToUse",
+          "mistakesToAvoid",
           "followUps",
         ],
         additionalProperties: false,
@@ -128,6 +134,7 @@ Your task:
 1. Extract a concise job profile.
 2. Infer likely interview focus areas based on the role, company context, seniority, and candidate profile.
 3. Generate 10 to 15 realistic professional interview questions tailored to this exact candidate and job.
+4. For each question, provide coaching for how the candidate should answer.
 
 RULES
 
@@ -136,6 +143,10 @@ Do not generate generic filler.
 Questions should reflect the JD, the candidate's experience level, likely company expectations, and any visible gaps.
 Use company-fit questions only when there is enough signal from the company or role context.
 When the company is not explicit in the JD, be honest and use a generic but professional company context note.
+For each question, provide:
+- answerFramework: the structure the candidate should use
+- resumeEvidenceToUse: examples or evidence from the candidate profile to draw on
+- mistakesToAvoid: common weak-answer patterns to avoid
 
 Question distribution should roughly include:
 - technical questions from must-have skills
