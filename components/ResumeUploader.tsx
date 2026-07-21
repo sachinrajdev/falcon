@@ -219,7 +219,7 @@ export default function ResumeUploader() {
       const parsed = JSON.parse(raw) as SavedSession[];
       return Array.isArray(parsed) ? parsed : [];
     } catch (err) {
-      console.error("Failed to load saved Falcon sessions", err);
+      console.error("Failed to load saved Pragati sessions", err);
       return [];
     }
   });
@@ -404,8 +404,8 @@ export default function ResumeUploader() {
       {savedSessions.length > 0 ? (
         <SectionShell
           eyebrow="Saved Dashboard"
-          title="Recent Falcon sessions"
-          description="Until auth is added, Falcon saves your recent analyses locally in this browser so you can come back and restore them."
+          title="Recent Pragati sessions"
+          description="Until auth is added, Pragati saves your recent analyses locally in this browser so you can come back and restore them."
         >
           <div className="grid gap-4 md:grid-cols-2">
             {savedSessions.map((session) => (
@@ -438,7 +438,7 @@ export default function ResumeUploader() {
         <StepCard
           number={1}
           title="Upload resume"
-          description="Start with your current resume so Falcon can extract your candidate profile."
+          description="Start with your current resume so Pragati can extract your candidate profile."
           status={stepOneStatus}
         />
         <StepCard
@@ -450,7 +450,7 @@ export default function ResumeUploader() {
         <StepCard
           number={3}
           title="Paste job description"
-          description="Add one target role so Falcon can extract the job profile and compare fit."
+          description="Add one target role so Pragati can extract the job profile and compare fit."
           status={stepThreeStatus}
         />
         <StepCard
@@ -491,13 +491,13 @@ export default function ResumeUploader() {
       {loading && (
         <div className="rounded-[2rem] border border-blue-200 bg-blue-50 p-6 shadow-sm">
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">
-            Falcon is working
+            Pragati is working
           </p>
           <p className="mt-2 text-lg font-semibold text-slate-900">
             Extracting your candidate profile from the resume.
           </p>
           <p className="mt-2 text-sm text-slate-600">
-            This is the first step only. Falcon is building the profile it will later compare against a specific job description.
+            This is the first step only. Pragati is building the profile it will later compare against a specific job description.
           </p>
         </div>
       )}
@@ -537,7 +537,7 @@ export default function ResumeUploader() {
           <SectionShell
             eyebrow="Step 2"
             title="Confirm your extracted profile"
-            description="This is the information Falcon will carry into the Job Intelligence and Decision Engine steps. Review it before comparing yourself against a specific job."
+            description="This is the information Pragati will carry into the Job Intelligence and Decision Engine steps. Review it before comparing yourself against a specific job."
           >
             <div className="grid gap-4 md:grid-cols-2">
               <ChipSection title="Core skills" items={analysis.skills ?? []} color="bg-emerald-600" />
@@ -573,7 +573,7 @@ export default function ResumeUploader() {
           <SectionShell
             eyebrow="Step 3"
             title="Paste one job description next"
-            description="Falcon should not decide from the resume alone. The real product decision happens after it extracts the job profile and compares both sides."
+            description="Pragati should not decide from the resume alone. The real product decision happens after it extracts the job profile and compares both sides."
           >
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
               <label htmlFor="job-description" className="text-sm font-semibold text-slate-900">
@@ -587,7 +587,7 @@ export default function ResumeUploader() {
                   setDecision(null);
                   setInterviewPrep(null);
                 }}
-                placeholder="Paste the full job description here. Falcon will use it in the next step to extract the job profile and return Apply Now, Improve First, or Skip."
+                placeholder="Paste the full job description here. Pragati will use it in the next step to extract the job profile and return Apply Now, Improve First, or Skip."
                 className="mt-3 min-h-52 w-full rounded-2xl border border-slate-300 bg-white px-4 py-4 text-sm leading-7 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
               />
 
@@ -613,11 +613,11 @@ export default function ResumeUploader() {
           <SectionShell
             eyebrow="Step 4"
             title="Decision for this exact job"
-            description="Falcon should decide whether you should apply now, improve first, or skip, then optionally generate interview prep for the same role."
+            description="Pragati should decide whether you should apply now, improve first, or skip, then optionally generate interview prep for the same role."
           >
             {decisionLoading ? (
               <div className="rounded-3xl border border-blue-200 bg-blue-50 p-6">
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-700">Falcon is deciding</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-700">Pragati is deciding</p>
                 <p className="mt-2 text-lg font-semibold text-slate-950">
                   Comparing your candidate profile against the job description.
                 </p>
@@ -626,7 +626,7 @@ export default function ResumeUploader() {
               <div className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className={`rounded-3xl border p-5 ${decisionTone}`}>
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Falcon verdict</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Pragati verdict</p>
                     <h3 className="mt-2 text-3xl font-bold text-slate-950">{decision.verdict}</h3>
                     <p className="mt-4 text-sm leading-7 text-slate-700">{decision.why}</p>
 
@@ -679,7 +679,7 @@ export default function ResumeUploader() {
                     <h3 className="mb-4 text-xl font-bold">Estimated time to improve</h3>
                     <p className="text-2xl font-bold text-slate-950">{decision.estimatedTimeToImprove}</p>
                     <p className="mt-3 text-sm leading-6 text-slate-600">
-                      Falcon uses this to decide whether the role is ready now, should be improved for first, or should be skipped.
+                      Pragati uses this to decide whether the role is ready now, should be improved for first, or should be skipped.
                     </p>
                   </div>
                 </div>
@@ -701,7 +701,7 @@ export default function ResumeUploader() {
                   <ListSection title="Missing evidence to add before applying" items={decision.resumeTailoring.missingEvidenceToAdd} />
                 </div>
 
-                <ListSection title="Responsibilities Falcon detected" items={decision.jobProfile.responsibilities} />
+                <ListSection title="Responsibilities Pragati detected" items={decision.jobProfile.responsibilities} />
 
                 <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -709,7 +709,7 @@ export default function ResumeUploader() {
                       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">Optional next layer</p>
                       <h3 className="mt-2 text-xl font-bold text-slate-950">Generate interview prep for this same role</h3>
                       <p className="mt-2 text-sm leading-6 text-slate-600">
-                        Once Falcon has decided on the role fit, it can generate job-specific mock interview questions and answer guidance.
+                        Once Pragati has decided on the role fit, it can generate job-specific mock interview questions and answer guidance.
                       </p>
                     </div>
 
@@ -726,7 +726,7 @@ export default function ResumeUploader() {
 
                 {prepLoading ? (
                   <div className="rounded-3xl border border-blue-200 bg-blue-50 p-6">
-                    <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-700">Falcon is preparing</p>
+                    <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-700">Pragati is preparing</p>
                     <p className="mt-2 text-lg font-semibold text-slate-950">
                       Generating professional interview questions from the job description and your profile.
                     </p>
@@ -838,7 +838,7 @@ export default function ResumeUploader() {
             ) : (
               <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
                 <p className="text-sm leading-7 text-slate-700">
-                  Once the candidate profile and job description are both available, Falcon can decide whether you should apply now, improve first, or skip before moving into interview prep.
+                  Once the candidate profile and job description are both available, Pragati can decide whether you should apply now, improve first, or skip before moving into interview prep.
                 </p>
               </div>
             )}
