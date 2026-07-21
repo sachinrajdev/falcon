@@ -193,7 +193,7 @@ ${resumeText}
         format: {
           type: "json_schema",
           name: "falcon_analysis",
-          schema: FALCON_PROFILE_SCHEMA,
+          schema: CANDIDATE_PROFILE_SCHEMA,
           strict: true,
         },
       },
