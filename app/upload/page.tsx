@@ -10,7 +10,7 @@ export default function UploadPage() {
         </h1>
 
         <p className="mt-4 text-lg text-slate-600">
-          Start with your resume. Falcon will extract the profile it needs before comparing you against a real job description.
+          Start with your resume. Pragati will extract the profile it needs before comparing you against a real job description.
         </p>
 
         <ResumeUploader />
