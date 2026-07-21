@@ -1,37 +1,128 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Falcon — AI Career Operating System
 
-## Getting Started
+Falcon is an intelligent job search platform that helps you make smarter career decisions. Upload your resume, analyze job descriptions, and get AI-powered guidance on whether to apply, improve first, or skip.
 
-First, run the development server:
+## 🎯 Core Features
+
+### 📊 Decision Engine
+Analyze any JD and get a clear verdict:
+- **Apply Now** — You're a strong fit; apply with confidence
+- **Improve First** — You have potential but need development in key areas
+- **Skip** — Not aligned with your profile; focus on better matches
+
+### 🎤 Interview Prep
+For roles you're pursuing:
+- 10–15 targeted questions based on the JD and your profile
+- **Answer frameworks** — structure your responses
+- **Evidence guidance** — specific stories to highlight from your experience
+- **Mistake avoidance** — common pitfalls to sidestep for this role
+
+### ✏️ Resume Tailoring
+Get AI-generated suggestions to make your resume stand out:
+- Keywords from the JD to incorporate
+- Section rewrites to boost relevance
+- Proof points to emphasize
+
+### 💾 Saved Sessions
+Track your analyses across all roles you've explored (Phase 2).
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+
+- npm or pnpm
+
+### Installation
 
 ```bash
+# Clone the repo
+git clone https://github.com/sachinrajdev/falcon.git
+cd falcon
+
+# Install dependencies
+npm install
+
+# Set up environment variables (see .env.example)
+cp .env.example .env.local
+# Add your OPENAI_API_KEY and LLAMAINDEX_API_KEY
+
+# Run the dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to start using Falcon.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📋 Pricing
 
-## Learn More
+**Phase 1 (Now):** All features free while we gather feedback.
 
-To learn more about Next.js, take a look at the following resources:
+**Phase 2 (TBD):** Pro tier (₹499/month) with unlimited analyses, full interview coaching, and cloud-backed saved sessions. See [PRICING_TIERS.md](./PRICING_TIERS.md) for full breakdown.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🛠️ Tech Stack
 
-## Deploy on Vercel
+- **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4
+- **LLM:** OpenAI Responses API (structured outputs)
+- **PDF Parsing:** LlamaCloud
+- **Persistence:** Browser localStorage (Phase 1), Firebase/Supabase (Phase 2)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# falcon
+## 📁 Project Structure
+
+```
+app/
+  page.tsx              # Landing page
+  upload/page.tsx       # Onboarding flow
+  api/
+    upload/route.ts     # Resume extraction
+    decision/route.ts   # JD analysis & verdict
+    interview-prep/route.ts  # Question generation
+components/
+  ResumeUploader.tsx    # Main UI component (all 4 steps)
+lib/
+  openai.ts            # OpenAI client
+  llama.ts             # LlamaCloud client
+  rateLimit.ts         # Rate limiting
+```
+
+---
+
+## 🔄 How It Works
+
+1. **Upload Resume** → Parsed via LlamaCloud, extracted to structured `CandidateProfile`
+2. **Paste JD** → Analyzed against your profile
+3. **Get Decision** → Decision Engine returns verdict + reasoning
+4. **View Interview Prep** (optional) → Full 10–15 questions with coaching
+5. **Save Session** → Bookmark for later (browser-local in Phase 1)
+
+---
+
+## 📊 Metrics We Track
+
+To guide Phase 2:
+- Daily/weekly active users
+- Repeat analyses (same user, multiple JDs)
+- Session save frequency
+- Decision distribution (Apply Now % vs Improve First % vs Skip %)
+
+---
+
+## 🤝 Contributing
+
+We're in early development. Issues and PRs welcome.
+
+- **Feature requests:** Open an issue with the tag `enhancement`
+- **Bugs:** Open an issue with the tag `bug`
+- **Roadmap:** See [PRICING_TIERS.md](./PRICING_TIERS.md) for Phase 2+ plans
+
+---
+
+## 📄 License
+
+MIT
