@@ -8,11 +8,11 @@ export default function Home() {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-lg font-bold text-white">
-              F
+              P
             </div>
 
             <span className="text-xl font-bold tracking-tight">
-              Falcon
+              Pragati
             </span>
           </div>
 
@@ -45,7 +45,7 @@ export default function Home() {
         </h1>
 
         <p className="mt-8 max-w-3xl text-xl leading-8 text-slate-600">
-          Falcon analyzes your resume, understands every job description,
+          Pragati analyzes your resume, understands every job description,
           identifies missing skills, and tells you exactly what to improve
           before applying.
         </p>

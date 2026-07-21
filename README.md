@@ -1,6 +1,8 @@
-# Falcon — AI Career Operating System
+# Pragati — AI Career Operating System
 
-Falcon is an intelligent job search platform that helps you make smarter career decisions. Upload your resume, analyze job descriptions, and get AI-powered guidance on whether to apply, improve first, or skip.
+**Tagline:** *Career Intelligence Meets Career Growth*
+
+Pragati is an intelligent job search platform that helps you make smarter career decisions. Upload your resume, analyze job descriptions, and get AI-powered guidance on whether to apply, improve first, or skip.
 
 ## 🎯 Core Features
 

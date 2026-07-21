@@ -1,4 +1,6 @@
-# Falcon Pricing Tiers
+# Pragati Pricing Tiers
+
+*Career Intelligence Meets Career Growth*
 
 ## 🆓 Free Tier
 **$0 / Forever**
