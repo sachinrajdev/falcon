@@ -28,6 +28,19 @@ Get AI-generated suggestions to make your resume stand out:
 ### 💾 Saved Sessions
 Track your analyses across all roles you've explored (Phase 2).
 
+## 📸 Dashboard Preview
+
+See Pragati in action — the 4-step flow that powers smarter career decisions:
+
+![Pragati Dashboard](./docs/assets/dashboard-preview.png)
+
+**What you see:**
+- **Step-by-step progress** — Track your analysis: Upload → Extract Profile → Analyze Fit → Interview Prep
+- **Decision verdict** — Get instant clarity: "Apply Now", "Improve First", or "Skip"
+- **Reasoning breakdown** — Understand exactly why we recommend a decision (e.g., "95% match with job requirements")
+- **Resume tailoring suggestions** — See which skills to add to strengthen your profile
+- **Interview coaching** — Get 10–15 questions with answer frameworks, evidence tips, and common mistakes to avoid
+
 ---
 
 ## 🚀 Getting Started
@@ -54,7 +67,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to start using Falcon.
+Open [http://localhost:3000](http://localhost:3000) to start using Pragati.
 
 ---
 

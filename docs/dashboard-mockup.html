@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pragati - Dashboard Mockup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 40px;
+            color: white;
+        }
+        .logo {
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .tagline {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .main-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+        .step-indicator {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+            justify-content: space-between;
+        }
+        .step {
+            text-align: center;
+            flex: 1;
+        }
+        .step-number {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .step-number.active {
+            background: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+        }
+        .step-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .decision-box {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .decision-verdict {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #10b981;
+        }
+        .decision-subtitle {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+        .decision-reason {
+            background: white;
+            border-left: 4px solid #10b981;
+            padding: 16px;
+            margin-top: 20px;
+            text-align: left;
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.6;
+        }
+        .interview-prep {
+            background: #f0f9ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+        }
+        .interview-question {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 12px;
+        }
+        .interview-answer {
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.6;
+            margin-bottom: 12px;
+            padding-left: 12px;
+            border-left: 3px solid #bfdbfe;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            margin: 10px 10px 10px 0;
+            font-size: 14px;
+        }
+        .button-primary {
+            background: #667eea;
+            color: white;
+        }
+        .button-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        .skills-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .skill-chip {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .footer {
+            color: white;
+            text-align: center;
+            margin-top: 40px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">P</div>
+            <div>
+                <div class="title">Pragati</div>
+                <div class="tagline">Career Intelligence Meets Career Growth</div>
+            </div>
+        </div>
+
+        <div class="main-card">
+            <div class="step-indicator">
+                <div class="step">
+                    <div class="step-number">✓</div>
+                    <div class="step-title">Upload Resume</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">✓</div>
+                    <div class="step-title">Extract Profile</div>
+                </div>
+                <div class="step">
+                    <div class="step-number active">3</div>
+                    <div class="step-title">Analyze Fit</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Interview Prep</div>
+                </div>
+            </div>
+
+            <h2 style="margin-bottom: 20px; color: #111827;">Decision Engine Result</h2>
+            
+            <div class="decision-box">
+                <div class="decision-verdict">✓ Apply Now</div>
+                <div class="decision-subtitle">You're a strong fit for this role</div>
+                <div class="decision-reason">
+                    <strong>Why this is a good match:</strong><br><br>
+                    • You have 8+ years of experience with the required tech stack<br>
+                    • All 5 core skills are present in your resume<br>
+                    • Your background directly aligns with the team's needs<br>
+                    • 95% match with job description requirements
+                </div>
+            </div>
+
+            <h2 style="margin: 40px 0 20px; color: #111827;">Resume Tailoring Suggestions</h2>
+            <p style="color: #6b7280; margin-bottom: 16px;">Enhance these skills to strengthen your application:</p>
+            <div class="skills-list">
+                <div class="skill-chip">Kubernetes</div>
+                <div class="skill-chip">Docker</div>
+                <div class="skill-chip">CI/CD Pipelines</div>
+                <div class="skill-chip">AWS</div>
+                <div class="skill-chip">Microservices</div>
+                <div class="skill-chip">GraphQL</div>
+            </div>
+
+            <h2 style="margin: 40px 0 20px; color: #111827;">Interview Prep (Sample)</h2>
+            
+            <div class="interview-prep">
+                <div class="interview-question">1. Tell us about your experience with microservices architecture</div>
+                <div class="interview-answer">
+                    <strong>Answer Framework:</strong> Describe 2-3 projects, focus on your role in system design, scalability challenges solved, and tools used
+                </div>
+                <div class="interview-answer">
+                    <strong>Evidence to Use:</strong> Project scale (users/transactions), performance improvements, specific technologies (K8s, Docker, gRPC)
+                </div>
+                <div class="interview-answer">
+                    <strong>Mistakes to Avoid:</strong> Don't just list technologies; explain the WHY and HOW behind architectural decisions
+                </div>
+            </div>
+
+            <div class="interview-prep">
+                <div class="interview-question">2. How do you approach debugging distributed systems?</div>
+                <div class="interview-answer">
+                    <strong>Answer Framework:</strong> Walk through your debugging methodology, tools you use (logging, tracing, monitoring), and specific examples
+                </div>
+                <div class="interview-answer">
+                    <strong>Evidence to Use:</strong> Specific incident you debugged, how observability helped, time-to-resolution metrics
+                </div>
+                <div class="interview-answer">
+                    <strong>Mistakes to Avoid:</strong> Don't sound unprepared; have concrete examples ready with clear problem-solution-outcome
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 40px;">
+                <button class="button button-primary">Save This Session</button>
+                <button class="button button-secondary">Generate PDF Report</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Pragati • AI Career Operating System | Privacy • Terms • Contact</p>
+        </div>
+    </div>
+</body>
+</html>
