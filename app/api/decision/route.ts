@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
     const response = await getOpenAI().responses.create({
       model: "gpt-5-mini",
       input: `
-You are Falcon, an AI Career Operating System.
+You are Pragati, an AI Career Operating System.
 
 Your job is to decide what the candidate should do next for this exact job.
 
@@ -155,7 +155,7 @@ ${jobDescription}
       text: {
         format: {
           type: "json_schema",
-          name: "falcon_decision",
+          name: "pragati_decision",
           schema: DECISION_SCHEMA,
           strict: true,
         },
