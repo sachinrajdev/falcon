@@ -131,9 +131,9 @@ export async function POST(req: NextRequest) {
     const response = await getOpenAI().responses.create({
       model: "gpt-5-mini",
       input: `
-You are Falcon, an AI Career Operating System.
+You are Pragati, an AI Career Operating System.
 
-Your job in this step is not to grade the resume. Your job is to extract a structured Candidate Profile from the resume so Falcon can later compare it against a job description.
+Your job in this step is not to grade the resume. Your job is to extract a structured Candidate Profile from the resume so Pragati can later compare it against a job description.
 
 IMPORTANT RULES
 
@@ -192,7 +192,7 @@ ${resumeText}
       text: {
         format: {
           type: "json_schema",
-          name: "falcon_analysis",
+          name: "pragati_analysis",
           schema: CANDIDATE_PROFILE_SCHEMA,
           strict: true,
         },
@@ -205,7 +205,7 @@ ${resumeText}
     try {
       analysis = JSON.parse(output);
     } catch (parseErr) {
-      console.error("FALCON ANALYSIS PARSE ERROR:", parseErr, "raw output:", output);
+      console.error("PRAGATI ANALYSIS PARSE ERROR:", parseErr, "raw output:", output);
       return NextResponse.json(
         {
           success: false,
