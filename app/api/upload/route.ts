@@ -7,7 +7,7 @@ const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB — resumes are never legiti
 const RATE_LIMIT_MAX_REQUESTS = 5;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 5 uploads / hour / IP
 
-const FALCON_PROFILE_SCHEMA = {
+const CANDIDATE_PROFILE_SCHEMA = {
   type: "object",
   properties: {
     currentRole: { type: "string" },

@@ -84,7 +84,7 @@ type SavedSession = {
   interviewPrep: InterviewPrepResult | null;
 };
 
-const STORAGE_KEY = "falcon.savedSessions.v1";
+const STORAGE_KEY = "pragati.savedSessions.v1";
 
 function StepCard({
   number,

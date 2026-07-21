@@ -1,0 +1,20 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "env": ["OPENAI_API_KEY", "LLAMAINDEX_API_KEY"],
+  "envDescription": {
+    "OPENAI_API_KEY": "OpenAI API key for resume analysis and decision engine. Get it at https://platform.openai.com/api-keys",
+    "LLAMAINDEX_API_KEY": "LlamaCloud API key for PDF parsing. Get it at https://cloud.llamaindex.ai/api-key"
+  },
+  "headers": [
+    {
+      "source": "/api/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, must-revalidate"
+        }
+      ]
+    }
+  ]
+}
