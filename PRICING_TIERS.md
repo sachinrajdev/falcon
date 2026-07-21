@@ -17,7 +17,7 @@
 - **No Answer Samples**: No editable candidate profile
 
 ### Positioning
-*Try Falcon free and see if this role is worth your time.*
+*Try Pragati free and see if this role is worth your time.*
 
 ---
 
@@ -38,7 +38,7 @@
   - Track your prep progress
 - **Candidate Profile Editor**: Refine your experience, skills, achievements
 - **Sample Answers** (optional feature): See 1–2 real-world answer examples per question
-- **Decision Reasoning**: Full audit trail of why Falcon said "Apply Now" vs "Improve First"
+- **Decision Reasoning**: Full audit trail of why Pragati said "Apply Now" vs "Improve First"
 
 ### Positioning
 *Go deep on roles you're serious about. Prep smarter, not harder.*
@@ -55,7 +55,7 @@
 
 ### Why ₹399 Works
 - **Accessible**: ~$5 USD for early adopter, 1–2 coffee budget
-- **Friction-free first try**: Free tier is generous enough to validate Falcon's value
+- **Friction-free first try**: Free tier is generous enough to validate Pragati's value
 - **Aligned with job search urgency**: Someone analyzing 5 roles is job-searching seriously and will pay
 
 ---
