@@ -149,7 +149,7 @@ export default function Home() {
             Built to increase interview chances, not just generate content.
           </h2>
           <p className="mt-4 text-lg leading-8 text-slate-600">
-            Falcon stays focused on one outcome: helping candidates decide where to apply, what to improve, and how to prepare for the interview that matters.
+            Pragati stays focused on one outcome: helping candidates decide where to apply, what to improve, and how to prepare for the interview that matters.
           </p>
         </div>
 
@@ -157,7 +157,7 @@ export default function Home() {
           <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
             <h3 className="text-xl font-bold">Decision Engine</h3>
             <p className="mt-3 text-sm leading-7 text-slate-600">
-              Falcon compares the candidate profile against the JD and returns Apply Now, Improve First, or Skip.
+              Pragati compares the candidate profile against the JD and returns Apply Now, Improve First, or Skip.
             </p>
           </div>
           <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
@@ -196,12 +196,12 @@ export default function Home() {
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Step 1</p>
               <h3 className="mt-3 text-xl font-bold">Upload resume</h3>
-              <p className="mt-3 text-sm leading-7 text-slate-600">Falcon extracts the candidate profile: role, years, skills, projects, certifications, and preparation areas.</p>
+              <p className="mt-3 text-sm leading-7 text-slate-600">Pragati extracts the candidate profile: role, years, skills, projects, certifications, and preparation areas.</p>
             </div>
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Step 2</p>
               <h3 className="mt-3 text-xl font-bold">Paste the job description</h3>
-              <p className="mt-3 text-sm leading-7 text-slate-600">Falcon extracts the target job profile, must-have skills, responsibilities, and role context.</p>
+              <p className="mt-3 text-sm leading-7 text-slate-600">Pragati extracts the target job profile, must-have skills, responsibilities, and role context.</p>
             </div>
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Step 3</p>
@@ -223,7 +223,7 @@ export default function Home() {
             Pricing
           </p>
           <h2 className="mt-4 text-4xl font-bold tracking-tight">
-            Start free, then pay only when Falcon saves real effort.
+            Start free, then pay only when Pragati saves real effort.
           </h2>
         </div>
 
@@ -232,7 +232,7 @@ export default function Home() {
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Free</p>
             <h3 className="mt-3 text-3xl font-bold">Get started</h3>
             <p className="mt-4 text-sm leading-7 text-slate-600">
-              Upload a resume, analyze a job description, and see how Falcon decides what to do next.
+              Upload a resume, analyze a job description, and see how Pragati decides what to do next.
             </p>
             <ul className="mt-6 space-y-3 text-sm text-slate-700">
               <li>• Resume profile extraction</li>
@@ -269,7 +269,7 @@ export default function Home() {
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Product Note</p>
-              <h3 className="mt-3 text-xl font-bold">Why Falcon uses Apply Now, Improve First, or Skip</h3>
+              <h3 className="mt-3 text-xl font-bold">Why Pragati uses Apply Now, Improve First, or Skip</h3>
               <p className="mt-3 text-sm leading-7 text-slate-600">
                 The real problem is application triage, not another generic resume score.
               </p>
