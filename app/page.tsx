@@ -20,7 +20,7 @@ export default function Home() {
             <a href="#features" className="transition hover:text-blue-700">Features</a>
             <a href="#how-it-works" className="transition hover:text-blue-700">How it Works</a>
             <a href="#pricing" className="transition hover:text-blue-700">Pricing</a>
-            <a href="#blog" className="transition hover:text-blue-700">Blog</a>
+            <a href="#docs" className="transition hover:text-blue-700">Docs</a>
           </nav>
 
           <Link
@@ -255,11 +255,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="blog" className="border-t border-slate-200 bg-slate-50 py-24 scroll-mt-24">
+      <section id="docs" className="border-t border-slate-200 bg-slate-50 py-24 scroll-mt-24">
         <div className="mx-auto max-w-7xl px-6">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-700">
-              Blog
+              Docs
             </p>
             <h2 className="mt-4 text-4xl font-bold tracking-tight">
               Product thinking and job-search strategy, not generic career fluff.
