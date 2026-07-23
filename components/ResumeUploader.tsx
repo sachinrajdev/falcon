@@ -74,6 +74,14 @@ type InterviewPrepResult = {
   }>;
 };
 
+type ResumeTailorResult = {
+  professionalSummary: string;
+  skills: string[];
+  experienceBullets: string[];
+  keywordAdditions: string[];
+  recruiterNotes: string[];
+};
+
 type SavedSession = {
   id: string;
   createdAt: string;
@@ -204,6 +212,8 @@ export default function ResumeUploader() {
   const [error, setError] = useState<string | null>(null);
   const [jobDescription, setJobDescription] = useState("");
   const [interviewPrep, setInterviewPrep] = useState<InterviewPrepResult | null>(null);
+  const [tailoredResume, setTailoredResume] = useState<ResumeTailorResult | null>(null);
+  const [tailorLoading, setTailorLoading] = useState(false);
   const [prepLoading, setPrepLoading] = useState(false);
   const [savedSessions, setSavedSessions] = useState<SavedSession[]>(() => {
     if (typeof window === "undefined") {
@@ -326,6 +336,44 @@ export default function ResumeUploader() {
       setPrepLoading(false);
     }
   }, [analysis, jobDescription, saveCurrentSession]);
+  
+  const generateResumeTailor = useCallback(async () => {
+  if (!analysis || !jobDescription.trim()) return;
+
+  setTailorLoading(true);
+  setError(null);
+
+  try {
+    const response = await fetch("/api/resume-tailor", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        candidateProfile: analysis,
+        jobDescription,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Resume tailoring failed.");
+    }
+
+    setTailoredResume(data.tailoredResume);
+  } catch (err) {
+    console.error(err);
+
+    setError(
+      err instanceof Error
+        ? err.message
+        : "Resume tailoring failed."
+    );
+  } finally {
+    setTailorLoading(false);
+  }
+}, [analysis, jobDescription]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (!acceptedFiles.length) return;
@@ -715,6 +763,15 @@ export default function ResumeUploader() {
 
                     <button
                       type="button"
+                      onClick={generateResumeTailor}
+                      disabled={tailorLoading}
+                      className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition enabled:hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                    >
+                        {tailorLoading ? "Tailoring Resume..." : "✨ Tailor Resume"}
+                    </button>
+
+                    <button
+                      type="button"
                       onClick={generateInterviewPrep}
                       disabled={prepLoading}
                       className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition enabled:hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
@@ -831,6 +888,86 @@ export default function ResumeUploader() {
                           </div>
                         </div>
                       ))}
+                    </div>
+                  </div>
+                ) : null}
+
+                {tailoredResume ? (
+                  <div className="rounded-3xl border border-blue-200 bg-blue-50 p-6 shadow-sm">
+                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">
+                      Resume Tailor
+                    </p>
+
+                    <h2 className="mt-2 text-2xl font-bold text-slate-950">
+                      ✨ ATS Optimized Resume
+                    </h2>
+
+                    <div className="mt-6 rounded-2xl bg-white p-5">
+                      <h3 className="mb-3 text-lg font-bold">
+                        Professional Summary
+                      </h3>
+
+                      <p className="leading-7 text-slate-700">
+                        {tailoredResume.professionalSummary}
+                      </p>
+                    </div>
+
+                    <div className="mt-6 rounded-2xl bg-white p-5">
+                      <h3 className="mb-3 text-lg font-bold">
+                        Optimized Skills
+                      </h3>
+
+                      <div className="flex flex-wrap gap-2">
+                        {tailoredResume.skills.map((skill) => (
+                          <span
+                            key={skill}
+                            className="rounded-full bg-blue-600 px-3 py-2 text-sm text-white"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="mt-6 rounded-2xl bg-white p-5">
+                      <h3 className="mb-3 text-lg font-bold">
+                        Experience Bullets
+                      </h3>
+
+                      <ul className="space-y-3">
+                        {tailoredResume.experienceBullets.map((bullet) => (
+                          <li key={bullet}>• {bullet}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="mt-6 rounded-2xl bg-white p-5">
+                      <h3 className="mb-3 text-lg font-bold">
+                        JD Keywords Added
+                      </h3>
+
+                      <div className="flex flex-wrap gap-2">
+                        {tailoredResume.keywordAdditions.map((keyword) => (
+                          <span
+                            key={keyword}
+                            className="rounded-full bg-emerald-600 px-3 py-2 text-sm text-white"
+                          >
+                            {keyword}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="mt-6 rounded-2xl bg-white p-5">
+                      <h3 className="mb-3 text-lg font-bold">
+                        Recruiter Notes
+                      </h3>
+
+                      <ul className="space-y-3">
+                        {tailoredResume.recruiterNotes.map((note) => (
+                          <li key={note}>• {note}</li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
                 ) : null}
