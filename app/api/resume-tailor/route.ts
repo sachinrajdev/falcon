@@ -11,7 +11,6 @@ const RESUME_TAILOR_SCHEMA = {
     professionalSummary: {
       type: "string",
     },
-
     skills: {
       type: "array",
       items: {
@@ -19,7 +18,6 @@ const RESUME_TAILOR_SCHEMA = {
       },
       maxItems: 25,
     },
-
     experienceBullets: {
       type: "array",
       items: {
@@ -27,7 +25,6 @@ const RESUME_TAILOR_SCHEMA = {
       },
       maxItems: 12,
     },
-
     keywordAdditions: {
       type: "array",
       items: {
@@ -35,7 +32,6 @@ const RESUME_TAILOR_SCHEMA = {
       },
       maxItems: 20,
     },
-
     recruiterNotes: {
       type: "array",
       items: {
@@ -44,7 +40,6 @@ const RESUME_TAILOR_SCHEMA = {
       maxItems: 8,
     },
   },
-
   required: [
     "professionalSummary",
     "skills",
@@ -52,14 +47,12 @@ const RESUME_TAILOR_SCHEMA = {
     "keywordAdditions",
     "recruiterNotes",
   ],
-
   additionalProperties: false,
 } as const;
 
 export async function POST(req: NextRequest) {
   try {
     const ip = getClientIp(req);
-
     const rateLimit = checkRateLimit(
       ip,
       RATE_LIMIT_MAX_REQUESTS,
@@ -84,9 +77,11 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-
     const candidateProfile = body?.candidateProfile;
-    const jobDescription = body?.jobDescription;
+    const jobDescription =
+      typeof body?.jobDescription === "string" ? body.jobDescription.trim() : "";
+    const resumeText =
+      typeof body?.resumeText === "string" ? body.resumeText.trim() : "";
 
     if (!candidateProfile || typeof candidateProfile !== "object") {
       return NextResponse.json(
@@ -100,10 +95,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (
-      typeof jobDescription !== "string" ||
-      !jobDescription.trim()
-    ) {
+    if (!jobDescription) {
       return NextResponse.json(
         {
           success: false,
@@ -114,35 +106,42 @@ export async function POST(req: NextRequest) {
         }
       );
     }
-        const response = await getOpenAI().responses.create({
+
+    const response = await getOpenAI().responses.create({
       model: "gpt-5-mini",
       input: `
 You are Pragati Resume Tailor.
 
-Your job is to rewrite the candidate's resume specifically for the supplied Job Description.
+Your job is to tailor the candidate's resume specifically for the supplied Job Description.
 
 You will receive:
-1. A structured Candidate Profile.
-2. A Job Description.
+1. A structured Candidate Profile
+2. The raw resume text if available
+3. A Job Description
 
 Your goal is to maximize interview chances WITHOUT inventing information.
 
 RULES
-
 - Never invent experience.
 - Never invent projects.
 - Never invent certifications.
 - Never invent achievements or metrics.
-- Never claim the candidate knows a technology unless it already exists in the profile.
-- You may rewrite wording, reorder skills, and strengthen bullets.
-- Naturally include important keywords from the Job Description.
-- Professional summary should be ATS-friendly.
-- Experience bullets should start with strong action verbs.
-- Skills should prioritize the most relevant skills for this job.
-- recruiterNotes should explain what was optimized.
+- Never claim the candidate knows a technology unless it is clearly supported by the resume text or candidate profile.
+- Use resume text as the source of truth when available.
+- Candidate profile is a secondary guide, not a replacement for resume evidence.
+- You may rewrite wording, reorder skills, and strengthen phrasing.
+- Naturally include important Job Description keywords only when supported by the candidate's existing background.
+- Professional summary should be ATS-friendly and concise.
+- Experience bullets should start with strong action verbs and remain factual.
+- Skills should prioritize the most relevant supported skills for this job.
+- recruiterNotes should explain what was optimized and what could not be added truthfully.
+- If raw resume text is missing, do the best possible profile-based tailoring and mention that limitation in recruiterNotes.
 
 Candidate Profile:
 ${JSON.stringify(candidateProfile, null, 2)}
+
+Raw Resume Text:
+${resumeText || "Not provided"}
 
 Job Description:
 ${jobDescription}

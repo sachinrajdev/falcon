@@ -3,9 +3,9 @@ import { getLlama } from "@/lib/llama";
 import { getOpenAI } from "@/lib/openai";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
 
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB — resumes are never legitimately larger
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const RATE_LIMIT_MAX_REQUESTS = 5;
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 5 uploads / hour / IP
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 
 const CANDIDATE_PROFILE_SCHEMA = {
   type: "object",
@@ -45,9 +45,6 @@ const CANDIDATE_PROFILE_SCHEMA = {
 
 export async function POST(req: NextRequest) {
   try {
-    // -----------------------------
-    // Rate limit (per IP)
-    // -----------------------------
     const ip = getClientIp(req);
     const rateLimit = checkRateLimit(ip, RATE_LIMIT_MAX_REQUESTS, RATE_LIMIT_WINDOW_MS);
 
@@ -76,11 +73,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // -----------------------------
-    // Server-side validation
-    // (client-side checks in ResumeUploader.tsx can be bypassed by anyone
-    // calling this endpoint directly, so these checks are the real gate)
-    // -----------------------------
     if (file.type !== "application/pdf") {
       return NextResponse.json(
         { success: false, error: "Only PDF files are supported." },
@@ -95,9 +87,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // -----------------------------
-    // Parse Resume using LlamaCloud
-    // -----------------------------
     const result = await getLlama().parsing.parse({
       upload_file: file,
       tier: "agentic",
@@ -105,17 +94,13 @@ export async function POST(req: NextRequest) {
       expand: ["text", "markdown"],
     });
 
-    // -----------------------------
-    // Extract Resume Text
-    // -----------------------------
-    const resumeText =
-      result.markdown?.pages
-        ?.map((page) => ("markdown" in page ? page.markdown : undefined))
-        .join("\n\n") ||
-      result.text?.pages
-        ?.map((page) => ("text" in page ? page.text : undefined))
-        .join("\n\n") ||
-      "";
+    const resumeText = [
+      ...(result.markdown?.pages ?? []).map((page) => ("markdown" in page ? page.markdown : "")),
+      ...(result.text?.pages ?? []).map((page) => ("text" in page ? page.text : "")),
+    ]
+      .filter((value) => typeof value === "string" && value.trim())
+      .join("\n\n")
+      .trim();
 
     if (!resumeText) {
       return NextResponse.json(
@@ -124,10 +109,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // -----------------------------
-    // Analyze using OpenAI (Structured Outputs — guarantees schema-conforming JSON,
-    // no more hoping a prompt instruction like "return only JSON" is honored)
-    // -----------------------------
     const response = await getOpenAI().responses.create({
       model: "gpt-5-mini",
       input: `
@@ -218,6 +199,7 @@ ${resumeText}
     return NextResponse.json({
       success: true,
       analysis,
+      resumeText,
     });
   } catch (err: unknown) {
     console.error("UPLOAD ERROR:", err);

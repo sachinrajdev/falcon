@@ -87,9 +87,11 @@ type SavedSession = {
   createdAt: string;
   fileName: string | null;
   candidateProfile: CandidateProfile;
+  resumeText: string;
   jobDescription: string;
   decision: DecisionResult;
   interviewPrep: InterviewPrepResult | null;
+  tailoredResume: ResumeTailorResult | null;
 };
 
 const STORAGE_KEY = "pragati.savedSessions.v1";
@@ -206,6 +208,7 @@ function SectionShell({
 export default function ResumeUploader() {
   const [file, setFile] = useState<File | null>(null);
   const [analysis, setAnalysis] = useState<CandidateProfile | null>(null);
+  const [resumeText, setResumeText] = useState("");
   const [decision, setDecision] = useState<DecisionResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [decisionLoading, setDecisionLoading] = useState(false);
@@ -239,7 +242,10 @@ export default function ResumeUploader() {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSessions));
   }, []);
 
-  const saveCurrentSession = useCallback((nextInterviewPrep?: InterviewPrepResult | null) => {
+  const saveCurrentSession = useCallback((options?: {
+    nextInterviewPrep?: InterviewPrepResult | null;
+    nextTailoredResume?: ResumeTailorResult | null;
+  }) => {
     if (!analysis || !decision || !jobDescription.trim()) return;
 
     const session: SavedSession = {
@@ -247,9 +253,11 @@ export default function ResumeUploader() {
       createdAt: new Date().toISOString(),
       fileName: file?.name ?? null,
       candidateProfile: analysis,
+      resumeText,
       jobDescription,
       decision,
-      interviewPrep: nextInterviewPrep ?? interviewPrep,
+      interviewPrep: options?.nextInterviewPrep ?? interviewPrep,
+      tailoredResume: options?.nextTailoredResume ?? tailoredResume,
     };
 
     const deduped = savedSessions.filter(
@@ -257,14 +265,16 @@ export default function ResumeUploader() {
     );
 
     persistSessions([session, ...deduped].slice(0, 8));
-  }, [analysis, decision, file?.name, interviewPrep, jobDescription, persistSessions, savedSessions]);
+  }, [analysis, decision, file?.name, interviewPrep, jobDescription, persistSessions, resumeText, savedSessions, tailoredResume]);
 
   const restoreSession = useCallback((session: SavedSession) => {
     setFile(session.fileName ? new File([], session.fileName, { type: "application/pdf" }) : null);
     setAnalysis(session.candidateProfile);
+    setResumeText(session.resumeText ?? "");
     setDecision(session.decision);
     setJobDescription(session.jobDescription);
     setInterviewPrep(session.interviewPrep);
+    setTailoredResume(session.tailoredResume);
     setError(null);
   }, []);
 
@@ -273,6 +283,7 @@ export default function ResumeUploader() {
 
     setDecisionLoading(true);
     setInterviewPrep(null);
+    setTailoredResume(null);
     setError(null);
 
     try {
@@ -328,7 +339,7 @@ export default function ResumeUploader() {
       }
 
       setInterviewPrep(data.interviewPrep);
-      saveCurrentSession(data.interviewPrep);
+      saveCurrentSession({ nextInterviewPrep: data.interviewPrep });
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : "Interview prep failed.");
@@ -341,6 +352,7 @@ export default function ResumeUploader() {
   if (!analysis || !jobDescription.trim()) return;
 
   setTailorLoading(true);
+  setTailoredResume(null);
   setError(null);
 
   try {
@@ -351,7 +363,8 @@ export default function ResumeUploader() {
       },
       body: JSON.stringify({
         candidateProfile: analysis,
-        jobDescription,
+        resumeText,
+        jobDescription: jobDescription.trim(),
       }),
     });
 
@@ -361,7 +374,12 @@ export default function ResumeUploader() {
       throw new Error(data.error || "Resume tailoring failed.");
     }
 
+    if (!data.tailoredResume) {
+      throw new Error("Resume tailor API did not return tailoredResume.");
+    }
+
     setTailoredResume(data.tailoredResume);
+    saveCurrentSession({ nextTailoredResume: data.tailoredResume });
   } catch (err) {
     console.error(err);
 
@@ -373,7 +391,7 @@ export default function ResumeUploader() {
   } finally {
     setTailorLoading(false);
   }
-}, [analysis, jobDescription]);
+}, [analysis, jobDescription, resumeText, saveCurrentSession]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (!acceptedFiles.length) return;
@@ -387,8 +405,10 @@ export default function ResumeUploader() {
 
     setFile(uploadedFile);
     setAnalysis(null);
+    setResumeText("");
     setDecision(null);
     setInterviewPrep(null);
+    setTailoredResume(null);
     setJobDescription("");
     setError(null);
     setLoading(true);
@@ -409,6 +429,7 @@ export default function ResumeUploader() {
       }
 
       setAnalysis(data.analysis);
+      setResumeText(typeof data.resumeText === "string" ? data.resumeText : "");
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : "Upload failed.");
@@ -634,6 +655,7 @@ export default function ResumeUploader() {
                   setJobDescription(event.target.value);
                   setDecision(null);
                   setInterviewPrep(null);
+                  setTailoredResume(null);
                 }}
                 placeholder="Paste the full job description here. Pragati will use it in the next step to extract the job profile and return Apply Now, Improve First, or Skip."
                 className="mt-3 min-h-52 w-full rounded-2xl border border-slate-300 bg-white px-4 py-4 text-sm leading-7 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
