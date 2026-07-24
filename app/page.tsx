@@ -1,6 +1,42 @@
 import Link from "next/link";
+import { PLAN_CATALOG } from "@/lib/planQuota";
+
 
 export default function Home() {
+  const planCards = [
+    {
+      key: "free",
+      badge: "Free",
+      title: "Get started",
+      description:
+        "Upload a resume, analyze a job description, and see how Pragati decides what to do next.",
+      features: [
+        `Resume Upload: ${PLAN_CATALOG.free.limits.resumeUpload}/month`,
+        `JD Match: ${PLAN_CATALOG.free.limits.jdMatch}/month`,
+        `Resume Tailor: ${PLAN_CATALOG.free.limits.resumeTailor}/month`,
+        `Cover Letter: ${PLAN_CATALOG.free.limits.coverLetter}/month`,
+        `HR Outreach: ${PLAN_CATALOG.free.limits.hrOutreach}/month`,
+        `Interview Prep: ${PLAN_CATALOG.free.limits.interviewPrep}/month`,
+      ],
+      dark: false,
+    },
+    {
+      key: "starter",
+      badge: `Starter - INR ${PLAN_CATALOG.starter.priceInr}/month`,
+      title: "For serious job search",
+      description:
+        "Save role history, track improvement over time, unlock deeper tailoring, and prepare faster for interviews that matter.",
+      features: [
+        `Resume Upload: ${PLAN_CATALOG.starter.limits.resumeUpload}/month`,
+        `JD Match: ${PLAN_CATALOG.starter.limits.jdMatch}/month`,
+        `Resume Tailor: ${PLAN_CATALOG.starter.limits.resumeTailor}/month`,
+        `Cover Letter: ${PLAN_CATALOG.starter.limits.coverLetter}/month`,
+        `HR Outreach: ${PLAN_CATALOG.starter.limits.hrOutreach}/month`,
+        `Interview Prep: ${PLAN_CATALOG.starter.limits.interviewPrep}/month`,
+      ],
+      dark: true,
+    },
+  ];
   return (
     <main className="min-h-screen scroll-smooth bg-white text-slate-900">
       {/* Navbar */}
@@ -228,31 +264,51 @@ export default function Home() {
         </div>
 
         <div className="mt-12 grid gap-6 md:grid-cols-2">
-          <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Free</p>
-            <h3 className="mt-3 text-3xl font-bold">Get started</h3>
-            <p className="mt-4 text-sm leading-7 text-slate-600">
-              Upload a resume, analyze a job description, and see how Pragati decides what to do next.
-            </p>
-            <ul className="mt-6 space-y-3 text-sm text-slate-700">
-              <li>• Resume profile extraction</li>
-              <li>• Job fit decision</li>
-              <li>• Basic interview prep</li>
-            </ul>
-          </div>
-          <div className="rounded-3xl border border-slate-900 bg-slate-900 p-8 text-white shadow-sm">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-300">Planned Pro</p>
-            <h3 className="mt-3 text-3xl font-bold">For serious job search</h3>
-            <p className="mt-4 text-sm leading-7 text-slate-300">
-              Save role history, track improvement over time, unlock deeper tailoring, and prepare faster for interviews that matter.
-            </p>
-            <ul className="mt-6 space-y-3 text-sm text-slate-200">
-              <li>• Persistent dashboard</li>
-              <li>• Advanced answer coaching</li>
-              <li>• Deeper resume targeting</li>
-            </ul>
-          </div>
-        </div>
+  {planCards.map((plan) => (
+    <div
+      key={plan.key}
+      className={
+        plan.dark
+          ? "rounded-3xl border border-slate-900 bg-slate-900 p-8 text-white shadow-sm"
+          : "rounded-3xl border border-slate-200 bg-white p-8 shadow-sm"
+      }
+    >
+      <p
+        className={
+          plan.dark
+            ? "text-sm font-semibold uppercase tracking-[0.18em] text-blue-300"
+            : "text-sm font-semibold uppercase tracking-[0.18em] text-slate-500"
+        }
+      >
+        {plan.badge}
+      </p>
+
+      <h3 className="mt-3 text-3xl font-bold">{plan.title}</h3>
+
+      <p
+        className={
+          plan.dark
+            ? "mt-4 text-sm leading-7 text-slate-300"
+            : "mt-4 text-sm leading-7 text-slate-600"
+        }
+      >
+        {plan.description}
+      </p>
+
+      <ul
+        className={
+          plan.dark
+            ? "mt-6 space-y-3 text-sm text-slate-200"
+            : "mt-6 space-y-3 text-sm text-slate-700"
+        }
+      >
+        {plan.features.map((feature) => (
+          <li key={feature}>• {feature}</li>
+        ))}
+      </ul>
+    </div>
+  ))}
+</div>
       </section>
 
       <section id="docs" className="border-t border-slate-200 bg-slate-50 py-24 scroll-mt-24">
