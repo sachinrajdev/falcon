@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import CommunicationActions from "@/components/CommunicationActions";
 
 type CandidateProfile = {
   currentRole: string;
@@ -992,6 +993,14 @@ export default function ResumeUploader() {
                       </ul>
                     </div>
                   </div>
+                ) : null}
+
+                {analysis && jobDescription.trim() ? (
+                  <CommunicationActions
+                    candidateProfile={analysis}
+                    jobDescription={jobDescription}
+                    tailoredResume={tailoredResume}
+                  />
                 ) : null}
               </div>
             ) : (
