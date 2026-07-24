@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
-
-export type PlanKey = "free" | "starter";
+import { getUserPlan, type PlanKey } from "@/lib/subscriptionStore";
 
 export type FeatureKey =
   | "resumeUpload"
@@ -67,11 +66,6 @@ function emptyUsage(): Record<FeatureKey, number> {
   };
 }
 
-export function getPlanFromRequest(req: NextRequest): PlanKey {
-  const raw = (req.headers.get("x-plan") || "").toLowerCase();
-  return raw === "starter" ? "starter" : "free";
-}
-
 export function getActorId(req: NextRequest): string {
   const userHint = req.headers.get("x-user-id")?.trim();
   if (userHint) {
@@ -81,6 +75,16 @@ export function getActorId(req: NextRequest): string {
   const forwarded = req.headers.get("x-forwarded-for");
   const ip = forwarded?.split(",")[0]?.trim() || "local-dev";
   return `ip:${ip}`;
+}
+
+export function getPlanFromRequest(req: NextRequest): PlanKey {
+  const userHint = req.headers.get("x-user-id")?.trim();
+  if (userHint) {
+    return getUserPlan(userHint);
+  }
+
+  const raw = (req.headers.get("x-plan") || "").toLowerCase();
+  return raw === "starter" ? "starter" : "free";
 }
 
 export function checkAndConsumeFeatureQuota(args: {
@@ -122,29 +126,5 @@ export function checkAndConsumeFeatureQuota(args: {
     limit,
     remaining: Math.max(limit - record.used[feature], 0),
     starterPriceInr: PLAN_CATALOG.starter.priceInr,
-  };
-}
-
-export function getFeatureUsageSnapshot(args: {
-  actorId: string;
-  plan: PlanKey;
-  feature: FeatureKey;
-}) {
-  const { actorId, plan, feature } = args;
-  const monthKey = getMonthKey();
-
-  let record = usageStore.get(actorId);
-  if (!record || record.monthKey !== monthKey) {
-    record = { monthKey, used: emptyUsage() };
-    usageStore.set(actorId, record);
-  }
-
-  const used = record.used[feature];
-  const limit = PLAN_CATALOG[plan].limits[feature];
-
-  return {
-    used,
-    limit,
-    remaining: Math.max(limit - used, 0),
   };
 }
