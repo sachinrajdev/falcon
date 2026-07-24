@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getLlama } from "@/lib/llama";
 import { getOpenAI } from "@/lib/openai";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
+import {
+  checkAndConsumeFeatureQuota,
+  getActorId,
+  getPlanFromRequest,
+} from "@/lib/planQuota";
 
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const RATE_LIMIT_MAX_REQUESTS = 5;
@@ -60,6 +65,31 @@ export async function POST(req: NextRequest) {
             "Retry-After": Math.ceil((rateLimit.resetAt - Date.now()) / 1000).toString(),
           },
         }
+      );
+    }
+
+    const plan = getPlanFromRequest(req);
+    const actorId = getActorId(req);
+
+    const quota = checkAndConsumeFeatureQuota({
+      actorId,
+      plan,
+      feature: "resumeUpload",
+    });
+
+    if (!quota.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Monthly limit reached for Resume Upload.",
+          upgradeRequired: true,
+          currentPlan: quota.plan,
+          feature: quota.feature,
+          used: quota.used,
+          limit: quota.limit,
+          starterPriceInr: quota.starterPriceInr,
+        },
+        { status: 403 }
       );
     }
 
@@ -200,6 +230,13 @@ ${resumeText}
       success: true,
       analysis,
       resumeText,
+      usage: {
+        plan,
+        feature: quota.feature,
+        used: quota.used,
+        limit: quota.limit,
+        remaining: quota.remaining,
+      },
     });
   } catch (err: unknown) {
     console.error("UPLOAD ERROR:", err);

@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOpenAI } from "@/lib/openai";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
+import {
+  checkAndConsumeFeatureQuota,
+  getActorId,
+  getPlanFromRequest,
+} from "@/lib/planQuota";
 
 const RATE_LIMIT_MAX_REQUESTS = 8;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
@@ -73,6 +78,31 @@ export async function POST(req: NextRequest) {
             ).toString(),
           },
         }
+      );
+    }
+
+    const plan = getPlanFromRequest(req);
+    const actorId = getActorId(req);
+
+    const quota = checkAndConsumeFeatureQuota({
+      actorId,
+      plan,
+      feature: "resumeTailor",
+    });
+
+    if (!quota.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Monthly limit reached for Resume Tailor.",
+          upgradeRequired: true,
+          currentPlan: quota.plan,
+          feature: quota.feature,
+          used: quota.used,
+          limit: quota.limit,
+          starterPriceInr: quota.starterPriceInr,
+        },
+        { status: 403 }
       );
     }
 
@@ -184,6 +214,13 @@ ${jobDescription}
     return NextResponse.json({
       success: true,
       tailoredResume,
+      usage: {
+        plan,
+        feature: quota.feature,
+        used: quota.used,
+        limit: quota.limit,
+        remaining: quota.remaining,
+      },
     });
   } catch (err: unknown) {
     console.error("RESUME TAILOR ERROR:", err);

@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOpenAI } from "@/lib/openai";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
+import {
+  checkAndConsumeFeatureQuota,
+  getActorId,
+  getPlanFromRequest,
+} from "@/lib/planQuota";
 
 const RATE_LIMIT_MAX_REQUESTS = 12;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
@@ -57,6 +62,31 @@ export async function POST(req: NextRequest) {
             "Retry-After": Math.ceil((rateLimit.resetAt - Date.now()) / 1000).toString(),
           },
         }
+      );
+    }
+
+    const plan = getPlanFromRequest(req);
+    const actorId = getActorId(req);
+
+    const quota = checkAndConsumeFeatureQuota({
+      actorId,
+      plan,
+      feature: "coverLetter",
+    });
+
+    if (!quota.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Monthly limit reached for Cover Letter.",
+          upgradeRequired: true,
+          currentPlan: quota.plan,
+          feature: quota.feature,
+          used: quota.used,
+          limit: quota.limit,
+          starterPriceInr: quota.starterPriceInr,
+        },
+        { status: 403 }
       );
     }
 
@@ -136,7 +166,17 @@ ${jobDescription}
       );
     }
 
-    return NextResponse.json({ success: true, coverLetter });
+    return NextResponse.json({
+      success: true,
+      coverLetter,
+      usage: {
+        plan,
+        feature: quota.feature,
+        used: quota.used,
+        limit: quota.limit,
+        remaining: quota.remaining,
+      },
+    });
   } catch (err: unknown) {
     console.error("COVER LETTER ERROR:", err);
     const message = err instanceof Error ? err.message : "Something went wrong.";

@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOpenAI } from "@/lib/openai";
 import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
+import {
+  checkAndConsumeFeatureQuota,
+  getActorId,
+  getPlanFromRequest,
+} from "@/lib/planQuota";
 
 const RATE_LIMIT_MAX_REQUESTS = 8;
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
@@ -94,6 +99,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const plan = getPlanFromRequest(req);
+    const actorId = getActorId(req);
+
+    const quota = checkAndConsumeFeatureQuota({
+      actorId,
+      plan,
+      feature: "jdMatch",
+    });
+
+    if (!quota.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Monthly limit reached for JD Match.",
+          upgradeRequired: true,
+          currentPlan: quota.plan,
+          feature: quota.feature,
+          used: quota.used,
+          limit: quota.limit,
+          starterPriceInr: quota.starterPriceInr,
+        },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json();
     const candidateProfile = body?.candidateProfile;
     const jobDescription = body?.jobDescription;
@@ -111,6 +141,8 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    const normalizedJobDescription = jobDescription.trim();
 
     const response = await getOpenAI().responses.create({
       model: "gpt-5-mini",
@@ -150,7 +182,7 @@ Candidate profile:
 ${JSON.stringify(candidateProfile, null, 2)}
 
 Job description:
-${jobDescription}
+${normalizedJobDescription}
 `,
       text: {
         format: {
@@ -175,7 +207,17 @@ ${jobDescription}
       );
     }
 
-    return NextResponse.json({ success: true, decision });
+    return NextResponse.json({
+      success: true,
+      decision,
+      usage: {
+        plan,
+        feature: quota.feature,
+        used: quota.used,
+        limit: quota.limit,
+        remaining: quota.remaining,
+      },
+    });
   } catch (err: unknown) {
     console.error("DECISION ERROR:", err);
     const message = err instanceof Error ? err.message : "Something went wrong.";
