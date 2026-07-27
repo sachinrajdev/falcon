@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type ResumeTailorResult = {
   professionalSummary: string;
@@ -61,8 +61,24 @@ export default function CommunicationActions({ candidateProfile, jobDescription,
 
   const [coverLoading, setCoverLoading] = useState(false);
   const [outreachLoading, setOutreachLoading] = useState(false);
+  const [activeProcess, setActiveProcess] = useState<"idle" | "cover" | "outreach">("idle");
+  const [processStartedAt, setProcessStartedAt] = useState<number | null>(null);
+  const [elapsedSec, setElapsedSec] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!processStartedAt || activeProcess === "idle") {
+      setElapsedSec(0);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setElapsedSec(Math.floor((Date.now() - processStartedAt) / 1000));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [activeProcess, processStartedAt]);
 
   const canGenerate = Boolean(candidateProfile && jobDescription.trim());
 
@@ -113,6 +129,8 @@ export default function CommunicationActions({ candidateProfile, jobDescription,
     if (!canGenerate) return;
 
     setCoverLoading(true);
+    setActiveProcess("cover");
+    setProcessStartedAt(Date.now());
     setError(null);
     setNotice(null);
 
@@ -142,6 +160,8 @@ export default function CommunicationActions({ candidateProfile, jobDescription,
       setError(err instanceof Error ? err.message : "Cover letter generation failed.");
     } finally {
       setCoverLoading(false);
+      setActiveProcess("idle");
+      setProcessStartedAt(null);
     }
   }
 
@@ -149,6 +169,8 @@ export default function CommunicationActions({ candidateProfile, jobDescription,
     if (!canGenerate) return;
 
     setOutreachLoading(true);
+    setActiveProcess("outreach");
+    setProcessStartedAt(Date.now());
     setError(null);
     setNotice(null);
 
@@ -178,6 +200,8 @@ export default function CommunicationActions({ candidateProfile, jobDescription,
       setError(err instanceof Error ? err.message : "HR outreach generation failed.");
     } finally {
       setOutreachLoading(false);
+      setActiveProcess("idle");
+      setProcessStartedAt(null);
     }
   }
 
@@ -193,6 +217,16 @@ export default function CommunicationActions({ candidateProfile, jobDescription,
 
       {error ? <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-800">{error}</div> : null}
       {notice ? <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">{notice}</div> : null}
+      {activeProcess !== "idle" ? (
+        <div className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">
+          <p className="font-semibold">
+            {activeProcess === "cover" ? "Generating cover letter in progress" : "Generating HR outreach in progress"}
+          </p>
+          <p className="mt-1 text-blue-800">
+            Please wait while Pragati builds your communication draft. Elapsed: {elapsedSec}s
+          </p>
+        </div>
+      ) : null}
 
       <div className="grid gap-4 md:grid-cols-2">
         <label className="block space-y-2">

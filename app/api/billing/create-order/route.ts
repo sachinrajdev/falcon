@@ -10,22 +10,38 @@ export async function POST(_req: NextRequest) {
 
     if (!userId) {
       return NextResponse.json(
-        { success: false, error: "Unauthorized." },
+        { success: false, error: "Unauthorized. Please sign in first." },
         { status: 401 }
       );
     }
 
+    const publicKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!publicKey || !keyId || !keySecret) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Missing Razorpay env vars. Required: NEXT_PUBLIC_RAZORPAY_KEY_ID, RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET",
+        },
+        { status: 500 }
+      );
+    }
+
     const amountPaise = STARTER_PRICE_INR * 100;
-    const receipt = `starter_${userId}_${Date.now()}`;
+    // const receipt = `starter_${userId}_${Date.now()}`;
+
+    const shortTs = Date.now().toString(36);
+    const receipt = `st_${shortTs}`; // safely under 40 chars
 
     const order = await getRazorpay().orders.create({
+      
       amount: amountPaise,
       currency: "INR",
       receipt,
-      notes: {
-        userId,
-        plan: "starter",
-      },
+      notes: { userId, plan: "starter" },
     });
 
     return NextResponse.json({
@@ -33,12 +49,20 @@ export async function POST(_req: NextRequest) {
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
-      keyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      keyId: publicKey,
       plan: "starter",
       priceInr: STARTER_PRICE_INR,
     });
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : "Failed to create order.";
-    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  } catch (err: any) {
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          err?.error?.description ||
+          err?.message ||
+          "Failed to create payment order.",
+      },
+      { status: 500 }
+    );
   }
 }

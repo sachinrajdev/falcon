@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import CommunicationActions from "@/components/CommunicationActions";
+import UpgradeToStarterButton from "@/components/UpgradeToStarterButton";
 
 type CandidateProfile = {
   currentRole: string;
@@ -206,6 +207,40 @@ function SectionShell({
   );
 }
 
+function SkillListCard({
+  title,
+  items,
+  tone,
+}: {
+  title: string;
+  items: string[];
+  tone: "must" | "preferred";
+}) {
+  const palette = tone === "must"
+    ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+    : "border-blue-200 bg-blue-50 text-blue-900";
+
+  return (
+    <div className="rounded-2xl border bg-white p-4 shadow-sm">
+      <h4 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">{title}</h4>
+      <ul className="mt-3 max-h-80 space-y-2 overflow-auto pr-1">
+        {items.length ? items.map((item, index) => (
+          <li
+            key={`${item}-${index}`}
+            className={`rounded-xl border px-3 py-2 text-sm leading-6 break-words ${palette}`}
+          >
+            {item}
+          </li>
+        )) : (
+          <li className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+            Not specified
+          </li>
+        )}
+      </ul>
+    </div>
+  );
+}
+
 export default function ResumeUploader() {
   const [file, setFile] = useState<File | null>(null);
   const [analysis, setAnalysis] = useState<CandidateProfile | null>(null);
@@ -219,28 +254,57 @@ export default function ResumeUploader() {
   const [tailoredResume, setTailoredResume] = useState<ResumeTailorResult | null>(null);
   const [tailorLoading, setTailorLoading] = useState(false);
   const [prepLoading, setPrepLoading] = useState(false);
-  const [savedSessions, setSavedSessions] = useState<SavedSession[]>(() => {
-    if (typeof window === "undefined") {
-      return [];
-    }
-
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (!raw) {
-        return [];
-      }
-
-      const parsed = JSON.parse(raw) as SavedSession[];
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (err) {
-      console.error("Failed to load saved Pragati sessions", err);
-      return [];
-    }
-  });
+  const [activeProcess, setActiveProcess] = useState<"idle" | "upload" | "analyze" | "tailor" | "prep">("idle");
+  const [processMessage, setProcessMessage] = useState("");
+  const [processStartedAt, setProcessStartedAt] = useState<number | null>(null);
+  const [processElapsedSec, setProcessElapsedSec] = useState(0);
+  const [savedSessions, setSavedSessions] = useState<SavedSession[]>([]);
 
   const persistSessions = useCallback((nextSessions: SavedSession[]) => {
     setSavedSessions(nextSessions);
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSessions));
+  }, []);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as SavedSession[];
+      if (Array.isArray(parsed)) {
+        setSavedSessions(parsed);
+      }
+    } catch (err) {
+      console.error("Failed to load saved Pragati sessions", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!processStartedAt || activeProcess === "idle") {
+      setProcessElapsedSec(0);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setProcessElapsedSec(Math.floor((Date.now() - processStartedAt) / 1000));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [activeProcess, processStartedAt]);
+
+  const startProcess = useCallback((kind: "upload" | "analyze" | "tailor" | "prep", message: string) => {
+    setActiveProcess(kind);
+    setProcessMessage(message);
+    setProcessStartedAt(Date.now());
+  }, []);
+
+  const updateProcessMessage = useCallback((message: string) => {
+    setProcessMessage(message);
+  }, []);
+
+  const stopProcess = useCallback(() => {
+    setActiveProcess("idle");
+    setProcessMessage("");
+    setProcessStartedAt(null);
   }, []);
 
   const saveCurrentSession = useCallback((options?: {
@@ -283,6 +347,7 @@ export default function ResumeUploader() {
     if (!analysis || !jobDescription.trim()) return;
 
     setDecisionLoading(true);
+    startProcess("analyze", "Comparing your profile with this job description");
     setInterviewPrep(null);
     setTailoredResume(null);
     setError(null);
@@ -299,12 +364,19 @@ export default function ResumeUploader() {
         }),
       });
 
-      const data = await response.json();
+      const raw = await response.text();
+      let data: any = null;
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        throw new Error(`Non-JSON response: ${raw.slice(0, 140)}`);
+      }
 
       if (!response.ok) {
         throw new Error(data.error || "Decision analysis failed");
       }
 
+      updateProcessMessage("Finalizing recommendation and next steps");
       setDecision(data.decision);
       setInterviewPrep(null);
     } catch (err) {
@@ -312,13 +384,15 @@ export default function ResumeUploader() {
       setError(err instanceof Error ? err.message : "Decision analysis failed.");
     } finally {
       setDecisionLoading(false);
+      stopProcess();
     }
-  }, [analysis, jobDescription]);
+  }, [analysis, jobDescription, startProcess, stopProcess, updateProcessMessage]);
 
   const generateInterviewPrep = useCallback(async () => {
     if (!analysis || !jobDescription.trim()) return;
 
     setPrepLoading(true);
+    startProcess("prep", "Generating interview questions and answer guidance");
     setError(null);
 
     try {
@@ -333,12 +407,19 @@ export default function ResumeUploader() {
         }),
       });
 
-      const data = await response.json();
+      const raw = await response.text();
+      let data: any = null;
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        throw new Error(`Non-JSON response: ${raw.slice(0, 140)}`);
+      }
 
       if (!response.ok) {
         throw new Error(data.error || "Interview prep failed");
       }
 
+      updateProcessMessage("Building concise coaching notes");
       setInterviewPrep(data.interviewPrep);
       saveCurrentSession({ nextInterviewPrep: data.interviewPrep });
     } catch (err) {
@@ -346,13 +427,15 @@ export default function ResumeUploader() {
       setError(err instanceof Error ? err.message : "Interview prep failed.");
     } finally {
       setPrepLoading(false);
+      stopProcess();
     }
-  }, [analysis, jobDescription, saveCurrentSession]);
+  }, [analysis, jobDescription, saveCurrentSession, startProcess, stopProcess, updateProcessMessage]);
   
   const generateResumeTailor = useCallback(async () => {
   if (!analysis || !jobDescription.trim()) return;
 
   setTailorLoading(true);
+  startProcess("tailor", "Tailoring resume to match this role");
   setTailoredResume(null);
   setError(null);
 
@@ -369,7 +452,13 @@ export default function ResumeUploader() {
       }),
     });
 
-    const data = await response.json();
+    const raw = await response.text();
+    let data: any = null;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      throw new Error(`Non-JSON response: ${raw.slice(0, 140)}`);
+    }
 
     if (!response.ok) {
       throw new Error(data.error || "Resume tailoring failed.");
@@ -379,6 +468,7 @@ export default function ResumeUploader() {
       throw new Error("Resume tailor API did not return tailoredResume.");
     }
 
+    updateProcessMessage("Refining ATS-aligned bullets and keywords");
     setTailoredResume(data.tailoredResume);
     saveCurrentSession({ nextTailoredResume: data.tailoredResume });
   } catch (err) {
@@ -391,8 +481,9 @@ export default function ResumeUploader() {
     );
   } finally {
     setTailorLoading(false);
+    stopProcess();
   }
-}, [analysis, jobDescription, resumeText, saveCurrentSession]);
+}, [analysis, jobDescription, resumeText, saveCurrentSession, startProcess, stopProcess, updateProcessMessage]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (!acceptedFiles.length) return;
@@ -413,6 +504,7 @@ export default function ResumeUploader() {
     setJobDescription("");
     setError(null);
     setLoading(true);
+    startProcess("upload", "Uploading and extracting profile from your resume");
 
     try {
       const formData = new FormData();
@@ -423,21 +515,28 @@ export default function ResumeUploader() {
         body: formData,
       });
 
-      const data = await response.json();
+      const raw = await response.text();
+      let data: any = null;
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        throw new Error(`Non-JSON response: ${raw.slice(0, 140)}`);
+      }
 
       if (!response.ok) {
         throw new Error(data.error || "Upload failed");
       }
 
-      setAnalysis(data.analysis);
+      setAnalysis(data.analysis ?? data.candidateProfile ?? null);
       setResumeText(typeof data.resumeText === "string" ? data.resumeText : "");
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : "Upload failed.");
     } finally {
       setLoading(false);
+      stopProcess();
     }
-  }, []);
+  }, [startProcess, stopProcess]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -468,6 +567,16 @@ export default function ResumeUploader() {
     : decision?.verdict === "Improve First"
       ? "border-amber-200 bg-amber-50"
       : "border-rose-200 bg-rose-50";
+
+  const processTitle = activeProcess === "upload"
+    ? "Processing resume upload"
+    : activeProcess === "analyze"
+      ? "Analyzing job fit"
+      : activeProcess === "tailor"
+        ? "Tailoring resume"
+        : activeProcess === "prep"
+          ? "Generating interview prep"
+          : "";
 
   return (
     <div className="mt-10 space-y-8">
@@ -557,6 +666,15 @@ export default function ResumeUploader() {
           {error}
         </div>
       )}
+
+      {activeProcess !== "idle" ? (
+        <div className="rounded-[1.5rem] border border-blue-200 bg-blue-50 p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">In progress</p>
+          <h3 className="mt-2 text-lg font-bold text-slate-950">{processTitle}</h3>
+          <p className="mt-2 text-sm text-slate-700">{processMessage}</p>
+          <p className="mt-2 text-xs font-medium text-slate-500">Elapsed: {processElapsedSec}s</p>
+        </div>
+      ) : null}
 
       {loading && (
         <div className="rounded-[2rem] border border-blue-200 bg-blue-50 p-6 shadow-sm">
@@ -672,10 +790,10 @@ export default function ResumeUploader() {
                 <button
                   type="button"
                   onClick={analyzeFit}
-                  disabled={!jobDescription.trim()}
+                  disabled={!jobDescription.trim() || decisionLoading || activeProcess !== "idle"}
                   className="rounded-2xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition enabled:hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
                 >
-                  Analyze fit
+                  {decisionLoading ? "Analyzing..." : "Analyze fit"}
                 </button>
               </div>
             </div>
@@ -725,8 +843,8 @@ export default function ResumeUploader() {
                     </p>
                     <p className="mt-1 text-sm leading-6 text-slate-700">{decision.jobProfile.location}</p>
                     <div className="mt-5 grid gap-4 md:grid-cols-2">
-                      <ChipSection title="Must-have skills" items={decision.jobProfile.mustHaveSkills} color="bg-emerald-600" />
-                      <ChipSection title="Preferred skills" items={decision.jobProfile.preferredSkills} color="bg-blue-700" />
+                      <SkillListCard title="Must-have skills" items={decision.jobProfile.mustHaveSkills} tone="must" />
+                      <SkillListCard title="Preferred skills" items={decision.jobProfile.preferredSkills} tone="preferred" />
                     </div>
                   </div>
                 </div>
@@ -801,6 +919,17 @@ export default function ResumeUploader() {
                     >
                       {prepLoading ? "Generating interview prep..." : "Generate interview prep"}
                     </button>
+                  </div>
+
+                  <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-700">Billing</p>
+                    <h4 className="mt-2 text-lg font-bold text-slate-950">Unlock higher monthly limits</h4>
+                    <p className="mt-1 text-sm text-slate-700">
+                      Upgrade to Starter if you hit free plan limits for JD match, tailoring, prep, and outreach.
+                    </p>
+                    <div className="mt-3">
+                      <UpgradeToStarterButton />
+                    </div>
                   </div>
                 </div>
 
